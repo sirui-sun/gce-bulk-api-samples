@@ -177,8 +177,6 @@ def do_work(instance_link):
 # also, handle any applicable errors
 # -----------------------------------------------------------
 
-# TODO: make sure this works (in terms of triggering the operations error)
-
 def zonal_create():
   try:
     operation = create_instances_in_zone(compute, project, zone, names, zonal_config)
@@ -214,8 +212,6 @@ def zonal_create():
   
     # handle the error content...
     # how would the customer know what errors could happen here?
-
-zonal_create()
 
 # -----------------------------------------------------------
 # Example 2: 
