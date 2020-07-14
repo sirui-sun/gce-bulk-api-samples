@@ -304,14 +304,12 @@ def try_different_machine_families():
       result = wait_for_operation(compute, project, zone, operation['name'])
 
       # # handle operation errors
-      if (!result["error"]):        
-        print(list_instances(compute, project, zone, names))
-        break
-
-      # error handling...
-      else:
+      if (result["error"]):        
         print("something went wrong")
         # error handling...
+      else: 
+        print(list_instances(compute, project, zone, names))
+        break
     
     # catch the frontend will tell you about stockouts
     except googleapiclient.errors.HttpError as err:
@@ -326,7 +324,7 @@ def try_different_machine_families():
 # Example 7: 
 # Create >1000 VMs - all should be in the same zone
 # -----------------------------------------------------------
-def region_create_spread_okay():
+def create_more_than_thousand_vms():
   nVMs = 2000           # VMs to be created
   batchSize = 1000      # 1000 is the max batch size for bulk APIS
   region = "us-central-1"
