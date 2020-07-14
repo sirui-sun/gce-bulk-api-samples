@@ -266,13 +266,14 @@ def zonal_create_with_name_pattern():
 # Example 5: 
 # Get me 1000 VMs - they can be spread out across the zones
 # in this region
+# you can something similar to ask for more than 1000 VMs
 # -----------------------------------------------------------
 def region_create_spread_okay():
   nVMs = 1000
-  zonal_config["predefinedNames"]
-  zonal_config["namePattern"] = "instance-####"
-  zonal_config["count"] = nVMs
-  zonal_config["minCount"] = 0      # minCount = 0 is equivalent to: create as many as you can
+  region = "us-central-1"
+  regional_config["namePattern"] = "instance-####"
+  regional_config["count"] = nVMs
+  regional_config["minCount"] = 0      # minCount = 0 is equivalent to: create as many as you can
 
   zones = get_zones_in_region(compute, project, region)
   zone_names = [zone["name"] for zone in zones]
@@ -321,12 +322,5 @@ def try_different_machine_families():
       # if stockout, then just keep trying machien types
       if first_error["reason"] == "RESOURCE_EXHAUSTED":
         continue
-
-# -----------------------------------------------------------
-# Example 7: 
-# Get me more than 1000 VMs, all in the same zone
-# -----------------------------------------------------------
-# TODO
-
 
 
