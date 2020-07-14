@@ -266,7 +266,6 @@ def zonal_create_with_name_pattern():
 # Example 5: 
 # Get me 1000 VMs - they can be spread out across the zones
 # in this region
-# you can something similar to ask for more than 1000 VMs
 # -----------------------------------------------------------
 def region_create_spread_okay():
   nVMs = 1000
@@ -279,8 +278,8 @@ def region_create_spread_okay():
   zone_names = [zone["name"] for zone in zones]
   for zone in zone_names:
     operation = create_instances_in_zone(compute, project, zone, names, zonal_config)
-    wait_for_operation(compute, project, selected_zone, operation["name"])
-    nCreated = operation["metadata"]["instancesCreated"]
+    result = wait_for_operation(compute, project, selected_zone, operation["name"])
+    nCreated = result["metadata"]["instancesCreated"]
     nVMs -= nCreated
     if (nVMs == 0):
       break
@@ -323,4 +322,36 @@ def try_different_machine_families():
       if first_error["reason"] == "RESOURCE_EXHAUSTED":
         continue
 
+# -----------------------------------------------------------
+# Example 7: 
+# Create >1000 VMs - all should be in the same zone
+# -----------------------------------------------------------
+def region_create_spread_okay():
+  nVMs = 2000           # VMs to be created
+  batchSize = 1000      # 1000 is the max batch size for bulk APIS
+  region = "us-central-1"
+  regional_config["namePattern"] = "instance-####"
+  regional_config["count"] = batchSize
+  regional_config["minCount"] = 0      # minCount = 0 is equivalent to: create as many as you can
 
+  # make an initial request to the regional endpoints to have the zone chosen
+  operation = create_instances_in_region(compute, project, region, names, regional_config)
+  selected_zone = operation["metadata"]["locations"].keys()[0]    # doesn't work yet (TODO)
+  result = wait_for_operation(compute, project, selected_zone, operation["name"])
+  nCreated = result["metadata"]["instancesCreated"]       # this doesn't work yet (TODO)
+  nVms -= nCreated
+
+  # now, use the zonal bulk APIs to create the rest of the Vms in selected_zone
+  # set up zonal config
+  zonal_config["namePattern"] = "instance-####"
+  zonal_config["minCount"] = 0
+  while nVMs > 0:
+    if (nVMs > batchSize):
+      batchSize = 1000
+    else:
+      batchSize = nVMs
+    zonal_config["count"] = batchSize
+    operation = create_instances_in_zone(compute, project, selected_zone, names, zonal_config)
+    result = wait_for_operation(compute, project, selected_zone, operation["name"])
+    nCreated = operation["metadata"]["instancesCreated"]
+    nVMs -= nCreated
