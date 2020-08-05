@@ -186,10 +186,13 @@ def zonal_create():
     # # handle operation errors
     if (result["error"]):
 
-      # grab the first error...I guess?
+      # TO DISCUSS : what does proper error handling look like?
+      # here I'm just grabbing the first error...is that right?
       first_error = result["error"]["errors"][0]
       
       # and reason over the first error:
+      # TO DISCUSS: how does a customer understand which error codes there are?
+      
       if first_error["code"] == "RESOURCE_ALREADY_EXISTS":
         # handle resource collision
         print("name collision")
@@ -200,6 +203,8 @@ def zonal_create():
 
       # etc...
 
+    # TO DISCUSS: the best way to get information about all the instances
+    # here, I'm actually passing a filter to instances.list...?
     print(list_instances(compute, project, zone, names))
   
   # catch "front-end" errors
@@ -211,7 +216,8 @@ def zonal_create():
       print("invalid request - check your JSON")  
   
     # handle the error content...
-    # how would the customer know what errors could happen here?
+    # TO DISCUSS: how would the customer know what errors could happen here?
+    # e.g. what is a capacity error, what is a quota error, what is a mal-formed request error
 
 # -----------------------------------------------------------
 # Example 2: 
@@ -221,6 +227,8 @@ def zonal_create():
 # -----------------------------------------------------------
 def regional_create():
   operation = create_instances_in_region(compute, project, region, names, regional_config)
+
+  # TO DISCUSS: how does a caller understand which was the called location?
   selected_zone = operation["metadata"]["locations"].keys()[0]    # doesn't work yet (TODO)
   wait_for_operation(compute, project, selected_zone, operation["name"])
   print(list_instances(compute, project, zone, names))
